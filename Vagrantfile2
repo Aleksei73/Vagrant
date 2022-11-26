@@ -1,0 +1,24 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+hosts = {
+  "vmtest1" => "192.168.88.10",
+  "vmtest2" => "192.168.88.11"
+}
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu_jammy64"
+  hosts.each do |name, ip|
+    config.vm.define name do |machine|
+      machine.vm.network :private_network, ip: ip
+      machine.vm.provider "virtualbox" do |v|
+        v.name = name
+        v.gui = true
+        v.memory = "1024"
+        v.cpus = 1
+      end
+    end
+    config.vm.provision "shell", path: "provision.sh"
+    config.vm.network "forwarded_port", guest: 80, host: 8000
+  end
+end
